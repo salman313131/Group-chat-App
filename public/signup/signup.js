@@ -1,14 +1,15 @@
 const form = document.getElementById('myForm')
-const myName = document.getElementById('name').value
-const email = document.getElementById('email').value
-const number = document.getElementById('number').value
-const password = document.getElementById('password').value
+const message = document.getElementById('message')
 
 form.addEventListener('submit',onSumbit)
 
 async function onSumbit(e){
     e.preventDefault();
-    if (!email || !myName || !email || !number || !password){
+    const myName = document.getElementById('name').value
+    const email = document.getElementById('email').value
+    const number = document.getElementById('number').value
+    const password = document.getElementById('password').value
+    if (!myName || !email || !number || !password){
         alert('Single or many Data is missing')
     }
     else{
@@ -20,8 +21,11 @@ async function onSumbit(e){
                 password:password
             }
             await axios.post('/api/v1/add',data)
+            message.textContent = 'User added Successfully'
         } catch (error) {
+            message.style.color = 'red';
+            message.textContent=error.message
             console.log(error)
-        }
     }
-} 
+    }
+}
