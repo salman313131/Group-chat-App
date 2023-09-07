@@ -28,5 +28,5 @@ User.hasMany(Chat)
 
 sequelize.sync().then(()=>{
     
-    app.listen(8000)
+    app.listen(3000)
 }).catch(err=>console.log(err))

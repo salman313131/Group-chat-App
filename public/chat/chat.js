@@ -34,16 +34,27 @@ button.addEventListener('click',async(e)=>{
 
 async function fetchingData(){
     try {
-        const response = await axios.get('/api/v1/chat/getall',{headers})
-        displayChats(response.data)
+        const localStorageData = localStorage.getItem('chat')
+        const localStorageChats = JSON.parse(localStorageData)
+        const response = await axios.get(`/api/v1/chat/:${localStorageChats[localStorageChats.length-1].id}`,{headers})
+        displayChats(localStorageChats,response.data)
     } catch (error) {
         console.log(error)
     }
 }
 
 
-function displayChats(data){
+function displayChats(localdata,data){
     items.innerHTML=''
+    for(let i=0;i<localdata.length;i++){
+        const li = document.createElement('li')
+        if(localdata[i].userId == data.currentUser){
+            li.textContent = `You : ${localdata[i].chat}`
+        }else{
+            li.textContent = `${localdata[i].name} : ${localdata[i].chat}`
+        }
+        items.appendChild(li)
+    }
     for(let i=0;i<data.chats.length;i++){
         const li = document.createElement('li')
         if(data.chats[i].userId == data.currentUser){
@@ -53,6 +64,9 @@ function displayChats(data){
         }
         items.appendChild(li)
     }
+    localdata.push(...data)
+    const startIndex = localdata.length > 10 ? localdata.length - 10 : 0;
+    localStorage.setItem('chat',localdata.slice(startIndex))
 }
 
 setInterval(fetchingData, 1000);

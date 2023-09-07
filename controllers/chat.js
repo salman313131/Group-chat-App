@@ -20,8 +20,24 @@ exports.postChat = async (req,res,next)=>{
 }
 
 exports.getAll = async (req,res,next)=>{
+    const localId = req.params.localId
+    let chats;
     try {
-        const chats = await Chat.findAll()
+        if(localId == undefined){
+            chats = await Chat.findAll({
+                limit:20,
+                order:[['createdAt', 'DESC']]
+            })
+        }
+        else{
+            chats = await Chat.findAll({
+                where: {
+                    id: {
+                        [Op.gt]: localId,
+                        },
+                },
+            })
+        }
         res.status(200).json({chats:chats,currentUser:req.user.id})
     } catch (error) {
         response.status(500).json({success:false,error:error})

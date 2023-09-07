@@ -45,6 +45,14 @@ button {
 button:hover {
     background-color: #585858;
 }
-li{
-    font-size: xx-large;
+.container ul#items li {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+.container ul#items li:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.container ul#items li:nth-child(odd) {
+    background-color: #dbdbdb;
 }
