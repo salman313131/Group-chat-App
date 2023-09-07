@@ -1,4 +1,5 @@
 const Chat = require('../modal/chat')
+const { Op } = require('sequelize');
 const User = require('../modal/user')
 
 exports.getChat = async (req,res,next)=>{
@@ -21,12 +22,13 @@ exports.postChat = async (req,res,next)=>{
 
 exports.getAll = async (req,res,next)=>{
     const localId = req.params.localId
+    console.log(localId)
     let chats;
     try {
-        if(localId == undefined){
+        if(localId == -1){
             chats = await Chat.findAll({
-                limit:20,
-                order:[['createdAt', 'DESC']]
+                limit:10,
+                order:[['createdAt', 'ASC']]
             })
         }
         else{
@@ -40,6 +42,6 @@ exports.getAll = async (req,res,next)=>{
         }
         res.status(200).json({chats:chats,currentUser:req.user.id})
     } catch (error) {
-        response.status(500).json({success:false,error:error})
+        res.status(500).json({success:false,error:error})
     }
 }

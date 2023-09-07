@@ -9,8 +9,30 @@
 </head>
 <body>
     <div class="container">
-        <ul id="items">
-        </ul>
+        <div class="column">
+            <button class="create-group-column">Create Group</button>
+            <div>
+                <h3>Group List</h3>
+                <div id="add-Buttons"></div>
+            </div>
+        </div>
+        <div class="column">
+
+            <ul id="items">
+            </ul>
+            <form style="display: none;">
+                <div>
+
+                    <label for="gname">Enter group Name</label>
+                    <input type="text" id="gname" name="gname">
+                </div>
+                <div>
+                    <label for="gmembers">Enter member names (comma seperated value)</label>
+                    <input type="text" id="gmembers" name="gmembers">
+                </div>
+                <button type="submit">Create Group</button>
+            </form>
+        </div>
     </div>
     <div class="input-container">
         <input type="text" placeholder="Type your message" id="inputData"></input>

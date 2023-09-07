@@ -5,6 +5,6 @@ const router = express.Router()
 
 router.get('/get',auth,chatController.getChat)
 router.post('/message',auth,chatController.postChat)
-router.get('/:localId',auth,chatController.getAll)
+router.get('/dis/:localId',auth,chatController.getAll)
 
 module.exports = router

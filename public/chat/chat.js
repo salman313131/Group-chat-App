@@ -9,7 +9,6 @@ const headers = {
 document.addEventListener('DOMContentLoaded',async ()=>{
     try {
         const response = await axios.get('/api/v1/chat/get',{headers})
-        console.log(response)
         const li = document.createElement('li')
         li.textContent = `${response.data.name} joined`
         items.appendChild(li)
@@ -35,9 +34,19 @@ button.addEventListener('click',async(e)=>{
 async function fetchingData(){
     try {
         const localStorageData = localStorage.getItem('chat')
-        const localStorageChats = JSON.parse(localStorageData)
-        const response = await axios.get(`/api/v1/chat/:${localStorageChats[localStorageChats.length-1].id}`,{headers})
-        displayChats(localStorageChats,response.data)
+        let localStorageChats;
+        if(localStorageData == null){
+            localStorageChats = [{id:-1}]
+        }else{
+            localStorageChats = JSON.parse(localStorageData)
+        }
+        const response = await axios.get(`/api/v1/chat/dis/${localStorageChats[localStorageChats.length-1].id}`,{headers})
+        if(localStorageData == null){
+
+            displayChats([],response.data)
+        }else{
+            displayChats(localStorageChats,response.data)
+        }
     } catch (error) {
         console.log(error)
     }
@@ -64,9 +73,10 @@ function displayChats(localdata,data){
         }
         items.appendChild(li)
     }
-    localdata.push(...data)
-    const startIndex = localdata.length > 10 ? localdata.length - 10 : 0;
-    localStorage.setItem('chat',localdata.slice(startIndex))
+    const newData = [...localdata,...data.chats]
+    const startIndex = newData.length > 10 ? newData.length - 10 : 0;
+    storageData = JSON.stringify(newData.slice(startIndex))
+    localStorage.setItem('chat',storageData)
 }
 
-setInterval(fetchingData, 1000);
+fetchingData()
