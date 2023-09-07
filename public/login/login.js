@@ -16,11 +16,7 @@ async function onSumbit(e){
     },1500)
     try {
         const response = await axios.post('/api/v1/get',{email:email,password:password})
-        message.textContent = response.data.token
-         setTimeout(()=>{
-        message.textContent=''
-        message.style.color = 'black'
-    },1500)
+        window.location.href='../chat/chat.html'
     } catch (error) {
         console.log(error)
         message.style.color = 'red'
