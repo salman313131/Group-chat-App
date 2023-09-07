@@ -15,7 +15,7 @@ body {
 }
 
 .input-container {
-    position: absolute;
+    position: fixed;
     display: grid;
     grid-template-columns: 7fr 1fr;
     bottom: 0;
@@ -44,4 +44,7 @@ button {
 
 button:hover {
     background-color: #585858;
+}
+li{
+    font-size: xx-large;
 }
