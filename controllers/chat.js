@@ -12,7 +12,7 @@ exports.getChat = async (req,res,next)=>{
 exports.postChat = async (req,res,next)=>{
     const {chat} = req.body
     try {
-        await Chat.create({chat:chat,userId:req.user.id})
+        await Chat.create({chat:chat,name:req.user.name,userId:req.user.id})
         res.status(201).json({success:true,name:req.user.name})
     } catch (error) {
         res.status(500).json({success:false,message:'Server Error',error:error})
@@ -21,8 +21,8 @@ exports.postChat = async (req,res,next)=>{
 
 exports.getAll = async (req,res,next)=>{
     try {
-        const [users,chats] = await Promise.all([User.findAll(),Chat.findAll()])
-        res.status(200).json({users:users,chats:chats})
+        const chats = await Chat.findAll()
+        res.status(200).json({chats:chats,currentUser:req.user.id})
     } catch (error) {
         response.status(500).json({success:false,error:error})
     }

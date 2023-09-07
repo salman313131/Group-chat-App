@@ -10,6 +10,10 @@ const Chat = sequelize.define('chat',{
     },
     chat:{
         type: Sequelize.TEXT,
+    },
+    name:{
+        type: Sequelize.STRING,
+        allowNull: false
     }
 })
 module.exports = Chat
