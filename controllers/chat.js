@@ -11,9 +11,9 @@ exports.getChat = async (req,res,next)=>{
 }
 
 exports.postChat = async (req,res,next)=>{
-    const {chat} = req.body
+    const {chat,groupId} = req.body
     try {
-        await Chat.create({chat:chat,name:req.user.name,userId:req.user.id})
+        await Chat.create({chat:chat,name:req.user.name,userId:req.user.id,groupId:groupId})
         res.status(201).json({success:true,name:req.user.name})
     } catch (error) {
         res.status(500).json({success:false,message:'Server Error',error:error})

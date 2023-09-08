@@ -110,3 +110,9 @@ button:hover {
  #inputData{
     width: 100%;
  }
+
+ .groupButton{
+    width: 100%;
+    background-color: rgb(108, 236, 236);
+    color: #FF6F61;
+ }

@@ -7,6 +7,10 @@ const Usergroup = sequelize.define('usergroup',{
         autoIncrement: true,
         allowNull:false,
         primaryKey:true,
+    },
+    admin:{
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
     }
 })
 module.exports = Usergroup

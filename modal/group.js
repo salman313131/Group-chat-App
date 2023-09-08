@@ -10,6 +10,10 @@ const Group = sequelize.define('group',{
     },
     name:{
         type: Sequelize.STRING,
+    },
+    createdby:{
+        type: Sequelize.STRING,
+        allowNull: false
     }
 })
 module.exports = Group
