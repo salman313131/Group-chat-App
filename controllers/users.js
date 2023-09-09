@@ -34,7 +34,7 @@ exports.getUser = async(req,res,next)=>{
         }
         const tokenData = {userId:user.id}
         const accessToken = jwt.sign(tokenData,process.env.JWT_TOKEN)
-        res.status(200).json({success:true,message:'Successful',token:accessToken})
+        res.status(200).json({success:true,message:'Successful',token:accessToken,name:user.name})
     } catch (error) {
         console.log(error)
         res.status(500).json({success:false,message:'Server side error'})

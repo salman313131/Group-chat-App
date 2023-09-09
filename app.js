@@ -2,7 +2,13 @@ require('dotenv').config()
 const express = require('express')
 const sequelize = require('./util/db')
 const cors = require('cors')
+const {createServer} = require('node:http')
+const {Server} = require('socket.io')
+
 const app = express()
+const server = createServer(app)
+const io = new Server(server)
+
 
 //router
 const userRouter = require('./routers/users')
@@ -35,7 +41,13 @@ Chat.belongsTo(Group)
 Group.hasMany(Chat)
 
 
+io.on('connection',(socket)=>{
+    socket.on('chat message', (msg) => {
+    io.emit('chat message', msg);
+  });
+})
+
 sequelize.sync().then(()=>{
     
-    app.listen(4000)
+    server.listen(4000)
 }).catch(err=>console.log(err))

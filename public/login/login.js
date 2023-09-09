@@ -17,6 +17,7 @@ async function onSumbit(e){
     try {
         const response = await axios.post('/api/v1/get',{email:email,password:password})
         localStorage.setItem('token',response.data.token)
+        localStorage.setItem('name',response.data.name)
         window.location.href='../chat/chat.html'
     } catch (error) {
         console.log(error)

@@ -8,6 +8,7 @@ const inputContainer = document.getElementById('input-container')
 const admin = document.getElementById('admin')
 const groupMemberAdd = document.getElementById('groupMemberAdd')
 const groupMemberList = document.getElementById('group-members-list')
+const socket = io();
 
 const headers = {
         'Content-Type': 'application/json',
@@ -39,10 +40,9 @@ button.addEventListener('click',async(e)=>{
     try {
         const groupId = localStorage.getItem('group')
         const msg = document.getElementById('inputData')
-        const response = await axios.post('/api/v1/chat/message',{chat:msg.value,groupId:groupId},{headers})
-        const li = document.createElement('li')
-        li.textContent = `You : ${msg.value}`
-        items.appendChild(li)
+        await axios.post('/api/v1/chat/message',{chat:msg.value,groupId:groupId},{headers})
+        const dataToEmit = {msg:msg.value,name:localStorage.getItem('name')}
+        socket.emit('chat message', dataToEmit);
         msg.value = ''
     } catch (error) {
         console.log(error)
@@ -145,7 +145,6 @@ async function chatScreen(e){
 async function userListDisplay(){
     const groupId = localStorage.getItem('group')
     const response = await axios.get(`/api/v1/group/userdis/${groupId}`,{headers})
-    console.log(response)
     for(let i=0;i<response.data.length;i++){
         const li = document.createElement('li')
         li.textContent = `${response.data[i].name}`
@@ -210,3 +209,14 @@ async function groupDelete(e){
         groupMemberList.removeChild(li)
     }
 }
+
+ socket.on('chat message', (msg) => {
+    const item = document.createElement('li');
+    if (localStorage.getItem('name') == msg.name){
+        item.textContent = `You : ${msg.msg}`
+    }else{
+
+        item.textContent = `${msg.name} : ${msg.msg}`;
+    }
+    items.appendChild(item);
+  });
