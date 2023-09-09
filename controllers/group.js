@@ -5,15 +5,12 @@ const Chat = require('../modal/chat')
 const { Op } = require('sequelize');
 
 exports.createGroup = async(req,res,next)=>{
-    const {name,members} = req.body
+    const {name} = req.body
     try {
         const newGroup = await Group.create({name:name,createdby:req.user.name})
-        let newMembers = [{userId:req.user.id,groupId:newGroup.id}]
-        for(let i=0;i<members.length;i++){
-            newMembers.push({userId:members[i],groupId:newGroup.id})
-        }
-        await Usergroup.bulkCreate(newMembers)
-        res.status(200).json({success:true})
+        let newMember = {userId:req.user.id,groupId:newGroup.id,admin:true}
+        await Usergroup.create(newMember)
+        res.status(200).json(newGroup)
     } catch (error) {
         console.log(error)
         res.status(500).json({success:false,error:error})
@@ -22,14 +19,12 @@ exports.createGroup = async(req,res,next)=>{
 
 exports.getGroup = async (req,res,next)=>{
     try {
-        const groups = await Group.findAll({
-            include: {
-            model: User,
-            through: {
-            where: { userId: req.user.id }, 
-                },
-            },
-        })
+         const user = await User.findByPk(req.user.id);
+            if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const groups = await user.getGroups();
         res.status(200).json({success:true,groups:groups})
     } catch (error) {
         res.status(500).json({success:false,error:error})
@@ -55,9 +50,59 @@ exports.getChat = async (req,res,next)=>{
             order:[['id','DESC']]
         })
     }
-        res.status(200).json({chats:chats,currentUser:req.user.id})
+        const isAdmin = await Usergroup.findOne({where:{userId:req.user.id,groupId:groupId}})
+        res.status(200).json({chats:chats,currentUser:req.user.id,admin:isAdmin.admin})
     } catch (error) {
         console.log(error)
+        res.status(500).json({success:false,error:error})
+    }
+}
+
+exports.addUser = async(req,res,next)=>{
+    const {attrName,attrValue,groupId} = req.body;
+    try {
+        const user = await User.findOne({where:{[attrName]:attrValue}})
+        if(!user){
+            return res.status(401).json({success:false,message:'User not found'})
+        }
+        await Usergroup.create({admin:false,userId:user.id,groupId:groupId})
+        res.status(200).json({id:Usergroup.id,name:user.name})
+    } catch (error) {
+        res.status(500).json({success:false,error:error})
+    }
+}
+
+exports.getAllUser = async (req,res,next)=>{
+    try {
+        const groupId = req.params.groupId;
+        const groupData = await Usergroup.findAll({where:{groupId:groupId},attributes:['id','userId']})
+        const newgroupData= groupData.filter(item=>item.userId!=req.user.id)
+        const idArray = newgroupData.map(item => item.userId);
+        const userData = await User.findAll({where:{
+            id: {
+            [Op.or]: idArray,
+        },
+        },attributes:['id','name']})
+        const sendArray = newgroupData.map(item => {
+            const matchedItem = userData.find(user => user.id === item.userId);
+                        return {
+                    id: item.id,
+                    name: matchedItem ? matchedItem.name : null,
+        };
+            });
+        res.status(200).json(sendArray)
+    } catch (error) {
+        res.status(500).json({success:false,error:error})
+    }
+
+}
+
+exports.deleteGroupMember = async (req,res,next)=>{
+    const id = req.params.id
+    try {
+        await Usergroup.destroy({where:{id:id}})
+        res.status(204).json({success:true})
+    } catch (error) {
         res.status(500).json({success:false,error:error})
     }
 }
