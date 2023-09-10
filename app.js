@@ -9,6 +9,7 @@ const app = express()
 const server = createServer(app)
 const io = new Server(server)
 
+// const startCronJob = require('./service/cron')
 
 //router
 const userRouter = require('./routers/users')
@@ -48,6 +49,6 @@ io.on('connection',(socket)=>{
 })
 
 sequelize.sync().then(()=>{
-    
+    // startCronJob();
     server.listen(4000)
 }).catch(err=>console.log(err))
