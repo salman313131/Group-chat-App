@@ -8,10 +8,16 @@ const inputContainer = document.getElementById('input-container')
 const admin = document.getElementById('admin')
 const groupMemberAdd = document.getElementById('groupMemberAdd')
 const groupMemberList = document.getElementById('group-members-list')
+const uploadFile = document.getElementById('uploadFile')
 const socket = io();
 
 const headers = {
         'Content-Type': 'application/json',
+        'Authorization': token 
+};
+
+const headers1 = {
+        'Content-Type': 'multipart/form-data',
         'Authorization': token 
 };
 
@@ -41,7 +47,7 @@ button.addEventListener('click',async(e)=>{
         const groupId = localStorage.getItem('group')
         const msg = document.getElementById('inputData')
         await axios.post('/api/v1/chat/message',{chat:msg.value,groupId:groupId},{headers})
-        const dataToEmit = {msg:msg.value,name:localStorage.getItem('name')}
+        const dataToEmit = {msg:msg.value,name:localStorage.getItem('name'),file:false}
         socket.emit('chat message', dataToEmit);
         msg.value = ''
     } catch (error) {
@@ -54,19 +60,73 @@ function displayChats(localdata,data){
     items.innerHTML=''
     for(let i=0;i<localdata.length;i++){
         const li = document.createElement('li')
+        if(localdata[i].filetype != 'chat'){
+
         if(localdata[i].userId == data.currentUser){
+            li.textContent = `You`
+        }else{
+            li.textContent = `${localdata[i].name}`
+        }
+
+        if (localdata[i].chat.endsWith('.jpg') || localdata[i].chat.endsWith('.jpeg') || localdata[i].chat.endsWith('.png')) {
+        const image = document.createElement('img');
+        image.src = localdata[i].chat;
+        li.appendChild(image);
+      } else if (localdata[i].chat.endsWith('.pdf')) {
+        const pdfObject = document.createElement('object');
+        pdfObject.data = localdata[i].chat;
+        pdfObject.type = 'application/pdf';
+        pdfObject.width = '100%';
+        pdfObject.height = '500px';
+        li.appendChild(pdfObject);
+      } else {
+        const unsupportedFileMessage = document.createElement('p');
+        unsupportedFileMessage.textContent = 'Unsupported file type';
+        li.appendChild(unsupportedFileMessage);
+      }
+
+        }else{
+            if(localdata[i].userId == data.currentUser){
             li.textContent = `You : ${localdata[i].chat}`
         }else{
             li.textContent = `${localdata[i].name} : ${localdata[i].chat}`
+        }
         }
         items.appendChild(li)
     }
     for(let i=0;i<data.data.length;i++){
         const li = document.createElement('li')
-        if(data.data[i].userId == data.currentUser){
+        if(data.data[i].filetype!='chat'){
+
+            if(data.data[i].userId == data.currentUser){
+            li.textContent = `You`
+        }else{
+            li.textContent = `${data.data[i].name}`
+        }
+
+        if (data.data[i].chat.endsWith('.jpg') || data.data[i].chat.endsWith('.jpeg') || data.data[i].chat.endsWith('.png')) {
+        const image = document.createElement('img');
+        image.src = data.data[i].chat;
+        li.appendChild(image);
+      } else if (data.data[i].chat.endsWith('.pdf')) {
+        const pdfObject = document.createElement('object');
+        pdfObject.data = data.data[i].chat;
+        pdfObject.type = 'application/pdf';
+        pdfObject.width = '100%';
+        pdfObject.height = '500px';
+        li.appendChild(pdfObject);
+      } else {
+        const unsupportedFileMessage = document.createElement('p');
+        unsupportedFileMessage.textContent = 'Unsupported file type';
+        li.appendChild(unsupportedFileMessage);
+      }
+
+        }else{
+            if(data.data[i].userId == data.currentUser){
             li.textContent = `You : ${data.data[i].chat}`
         }else{
             li.textContent = `${data.data[i].name} : ${data.data[i].chat}`
+        }
         }
         items.appendChild(li)
     }
@@ -212,11 +272,62 @@ async function groupDelete(e){
 
  socket.on('chat message', (msg) => {
     const item = document.createElement('li');
-    if (localStorage.getItem('name') == msg.name){
-        item.textContent = `You : ${msg.msg}`
-    }else{
+    if(msg.file==true){
+        if (localStorage.getItem('name') == msg.name){
+            item.textContent = `You`
+        }else{
+            
+            item.textContent = `${msg.name}`;
+        }
+        if (msg.msg.endsWith('.jpg') || msg.msg.endsWith('.jpeg') || msg.msg.endsWith('.png')) {
+        const image = document.createElement('img');
+        image.src = msg.msg;
+        item.appendChild(image);
+      } else if (msg.msg.endsWith('.pdf')) {
+        const pdfObject = document.createElement('object');
+        pdfObject.data = msg.msg;
+        pdfObject.type = 'application/pdf';
+        pdfObject.width = '100%';
+        pdfObject.height = '500px';
+        item.appendChild(pdfObject);
+      } else {
+        const unsupportedFileMessage = document.createElement('p');
+        unsupportedFileMessage.textContent = 'Unsupported file type';
+        item.appendChild(unsupportedFileMessage);
+      }
 
-        item.textContent = `${msg.name} : ${msg.msg}`;
+    }
+    else{
+
+        if (localStorage.getItem('name') == msg.name){
+            item.textContent = `You : ${msg.msg}`
+        }else{
+            
+            item.textContent = `${msg.name} : ${msg.msg}`;
+        }
     }
     items.appendChild(item);
   });
+
+//upload file 
+uploadFile.addEventListener('click',onUpload)
+
+async function onUpload(e){
+    e.preventDefault();
+    try {
+        const file = document.getElementById('file')
+        if(file.files.length>0){
+            const groupId = localStorage.getItem('group')
+            const formData = new FormData()
+            formData.append('file',file.files[0])
+            formData.append('group',groupId)
+            const response = await axios.post('/api/v1/chat/file',formData,{headers:headers1})
+            const dataToEmit = {msg:response.data.url,name:localStorage.getItem('name'),file:true}
+            socket.emit('chat message', dataToEmit);
+        }else{
+            alert('Please select file to send')
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
