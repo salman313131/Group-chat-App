@@ -9,5 +9,6 @@ router.get('/getchat/',auth,groupController.getChat)
 router.post('/adduser',groupController.addUser)
 router.get('/userdis/:groupId',auth,groupController.getAllUser)
 router.delete('/delete/:id',groupController.deleteGroupMember)
+router.patch('/admin',groupController.updateAdmin)
 
 module.exports = router

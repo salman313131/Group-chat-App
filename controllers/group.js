@@ -75,7 +75,7 @@ exports.addUser = async(req,res,next)=>{
 exports.getAllUser = async (req,res,next)=>{
     try {
         const groupId = req.params.groupId;
-        const groupData = await Usergroup.findAll({where:{groupId:groupId},attributes:['id','userId']})
+        const groupData = await Usergroup.findAll({where:{groupId:groupId},attributes:['id','userId','admin']})
         const newgroupData= groupData.filter(item=>item.userId!=req.user.id)
         const idArray = newgroupData.map(item => item.userId);
         const userData = await User.findAll({where:{
@@ -88,6 +88,7 @@ exports.getAllUser = async (req,res,next)=>{
                         return {
                     id: item.id,
                     name: matchedItem ? matchedItem.name : null,
+                    admin: item.admin,
         };
             });
         res.status(200).json(sendArray)
@@ -102,6 +103,16 @@ exports.deleteGroupMember = async (req,res,next)=>{
     try {
         await Usergroup.destroy({where:{id:id}})
         res.status(204).json({success:true})
+    } catch (error) {
+        res.status(500).json({success:false,error:error})
+    }
+}
+
+exports.updateAdmin = async (req,res,next)=>{
+    const {id} = req.body
+    try {
+        await Usergroup.update({admin:true},{where:{id:id}})
+        res.status(200).json({suceess:true})
     } catch (error) {
         res.status(500).json({success:false,error:error})
     }

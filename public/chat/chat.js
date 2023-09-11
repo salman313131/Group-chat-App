@@ -217,11 +217,16 @@ async function userListDisplay(){
         button1.classList.add('groupDelete')
         button1.id = response.data[i].id
         li.appendChild(button1)
+        if(response.data[i].admin == false){
         const button2 = document.createElement('button')
         button2.textContent='Make admin'
         button2.classList.add('admin-button')
         button2.setAttribute('data-unique-id', `${response.data[i].id}`);
         li.appendChild(button2)
+        }else{
+            li.appendChild(document.createTextNode('admin'))
+        }
+        
         groupMemberList.appendChild(li)
     }
 }
@@ -271,6 +276,15 @@ async function groupDelete(e){
         const li = e.target.parentElement
         await axios.delete(`/api/v1/group/delete/${id}`)
         groupMemberList.removeChild(li)
+    }
+    if(e.target.classList.contains('admin-button')){
+        const target = e.target
+        const parent = target.parentElement
+        const id = target.getAttribute('data-unique-id')
+        const data = {id:id}
+        await axios.patch('/api/v1/group/admin',data)
+        parent.removeChild(target)
+        parent.appendChild(document.createTextNode('admin'))
     }
 }
 
