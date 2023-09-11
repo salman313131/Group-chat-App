@@ -123,3 +123,15 @@ button:hover {
  li{
     list-style-type: none;
  }
+ img {
+     width: 150px;
+     height: 150px;
+     display: block;
+     border-radius: 10px;
+     border: #333;
+ }
+ #group-members-list li{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 5px;
+ }

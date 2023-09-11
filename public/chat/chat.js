@@ -168,7 +168,10 @@ groupListButton.addEventListener('click',chatScreen)
 async function chatScreen(e){
     e.preventDefault()
     if(e.target.classList.contains('groupButton')){
-        localStorage.setItem('group',e.target.id)
+        if(localStorage.getItem('group')!=e.target.id){
+            localStorage.removeItem('chat')
+            localStorage.setItem('group',e.target.id)
+        }
         try {
             const localStorageData = localStorage.getItem('chat')
         let localStorageChats;
@@ -203,11 +206,12 @@ async function chatScreen(e){
 
 //
 async function userListDisplay(){
+    groupMemberList.innerHTML = ''
     const groupId = localStorage.getItem('group')
     const response = await axios.get(`/api/v1/group/userdis/${groupId}`,{headers})
     for(let i=0;i<response.data.length;i++){
         const li = document.createElement('li')
-        li.textContent = `${response.data[i].name}`
+        li.appendChild(document.createTextNode(`${response.data[i].name}`))
         const button1 = document.createElement('button')
         button1.textContent = 'delete'
         button1.classList.add('groupDelete')
